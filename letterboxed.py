@@ -36,10 +36,8 @@ def generate_combinations(sets, valid_words):
 
         # If the word does not match the start of any word, discard this word
         if not matches_start_of_any(word):
-            #print('discarding: ' + word)
             return
         if word in valid_words and len(word) > 2:
-            print('adding: ' + word)
             results.append(word)
 
         # Recurse by adding a character from a different set
@@ -66,8 +64,6 @@ def find_valid_combinations_of_words_limited(returned_words, original_characters
     :param max_words: The maximum number of words in a combination.
     :return: A list of valid combinations of words.
     """
-    # Flatten original characters into a single string for comparison
-    original_characters = ''.join(sorted(original_characters))
 
     def all_combinations(words, max_length):
         """
@@ -75,39 +71,32 @@ def find_valid_combinations_of_words_limited(returned_words, original_characters
         """
         return chain.from_iterable(combinations(words, r) for r in range(1, max_length + 1))
 
-    valid_combinations = []
-    for subset in all_combinations(returned_words, max_words):  # Limit combinations to max_words
-        subset_list = list(subset)
-        #print(subset_list)
-        l=len(subset_list)
-        #print(l)
+    def check_solution(solution_list):
+        l=len(solution_list)
         i=0
-        j=1
-        rejecting=False
-        #print(subset_list)
-        ##while j < l:
-        ##    if subset_list[i][-1] != subset_list[j][0]:
-        ##        #print('rejecting: ' + str(subset_list))
-        ##        rejecting=True
-        ##        break
-        ##    i=i+1
-        ##    j=j+1
-        ##if rejecting:
-        ##    continue
+        while i+1 < l:
+            if solution_list[i][-1] != solution_list[i+1][0]:
+                return False
+            i=i+1
+        return True
+
+    # Flatten original characters into a single string for comparison
+    original_characters = ''.join(sorted(original_characters))
+    valid_combinations = []
+
+    for subset in all_combinations(returned_words, max_words):  # Limit combinations to max_words
         for perm in permutations(subset):  # Check all permutations of the subset
-            combined = ''.join(perm)
+            combined = set(''.join(perm))
             if ''.join(sorted(combined)) == original_characters:  # Check character match
-                valid_combinations.append(perm)
-                print(perm)
+                if check_solution(perm):
+                    valid_combinations.append(perm)
 
     return valid_combinations
 
 
 if __name__ == "__main__":
     # Specify the file path
-    # TODO: choose dictionary
     file_path = 'scrabble-dictionary.txt'
-    #file_path = 'common-seven-letter-words.txt'
 
     # Read the words from the file
     words_array = read_words_from_file(file_path)
@@ -120,9 +109,8 @@ if __name__ == "__main__":
     ]
     original_characters = set.union(*sets)
     possible_words = generate_combinations(sets, words_array)
-    #possible_words = ['CHIAO', 'CHIEL', 'CHIELD', 'CHID', 'CHIDE', 'CHIDED', 'CHILE', 'CHILD', 'CHILDE', 'CHILI', 'CHILIAD', 'CHILIADAL', 'CHILIADIC', 'CHIC', 'CHICA', 'CHICALOTE', 'CHICHI', 'CHICO', 'COMTE', 'COMIC', 'COMICAL', 'COAL', 'COALA', 'COALED', 'COACH', 'COACHED', 'COACT', 'COACTED', 'COAT', 'COATED', 'COACH', 'COACHED', 'COED', 'COELOM', 'COELOMIC', 'COELIAC', 'COELIAC', 'COY', 'COYED', 'COYOTE', 'COL', 'COLA', 'COLE', 'COLED', 'COLECTOMY', 'COLOCATE', 'COLOCATED', 'COLOTOMY', 'COLOCATE', 'COLOCATED', 'COLD', 'COLT', 'COLIC', 'COCA', 'COCO', 'COCOA', 'COCCAL', 'COCCOID', 'COCCOIDAL', 'COT', 'COTE', 'COTED', 'COCA', 'COCO', 'COCOA', 'COCCAL', 'COCCOID', 'COCCOIDAL', 'COCCI', 'COCCID', 'COCCIDIA', 'COCCIC', 'COIL', 'COILED', 'CIAO', 'CILIA', 'CILIATE', 'CILIATED', 'CILIOLATE', 'CILICE', 'CICADA', 'CICALA', 'CICALE', 'CICHLID', 'TAO', 'TAD', 'TALA', 'TALE', 'TALC', 'TALCED', 'TALI', 'TACE', 'TACET', 'TACH', 'TACHE', 'TACO', 'TACT', 'TAT', 'TATE', 'TACE', 'TACET', 'TACH', 'TACHE', 'TACO', 'TAIL', 'TAILED', 'TAILCOAT', 'TAILCOATED', 'TED', 'TEL', 'TELA', 'TELE', 'TELECOM', 'TELECOM', 'TELOMIC', 'TELOI', 'TELCO', 'TELIA', 'TELIAL', 'TELIC', 'TECH', 'TECHED', 'TECHY', 'TECHIE', 'TECTA', 'TECTAL', 'TET', 'TETH', 'TETCHED', 'TETCHY', 'TECH', 'TECHED', 'TECHY', 'TECHIE', 'THAT', 'THATCH', 'THATCHED', 'THATCHY', 'THE', 'THEY', 'THECA', 'THECAL', 'THECATE', 'THETA', 'THECA', 'THECAL', 'THECATE', 'THY', 'THYMOL', 'THYMOCYTE', 'THYMY', 'THYMI', 'THYMIC', 'THIO', 'THIOL', 'THIOLIC', 'TOM', 'TOMCAT', 'TOMCAT', 'TOAD', 'TOADY', 'TOADIED', 'TOE', 'TOED', 'TOY', 'TOYED', 'TOYO', 'TOLA', 'TOLE', 'TOLED', 'TOLD', 'TOCCATA', 'TOCCATE', 'TOT', 'TOTAL', 'TOTALED', 'TOTE', 'TOTED', 'TOCCATA', 'TOCCATE', 'TOIL', 'TOILE', 'TOILED', 'TOILET', 'TOILETED', 'TYE', 'TYTHE', 'TYTHED', 'CAD', 'CADMIC', 'CADE', 'CADET', 'CADI', 'CAY', 'CALM', 'CALATHI', 'CALECHE', 'CALECHE', 'CALO', 'CALICHE', 'CALICO', 'CACA', 'CACAO', 'CACHALOT', 'CACHE', 'CACHED', 'CACHET', 'CACHETED', 'CACTOID', 'CAT', 'CATALO', 'CATE', 'CATHECT', 'CATHECTED', 'CATCH', 'CATCHY', 'CACA', 'CACAO', 'CACHALOT', 'CACHE', 'CACHED', 'CACHET', 'CACHETED', 'CAID', 'CEDE', 'CEDED', 'CEDI', 'CEL', 'CELOM', 'CELT', 'CELIAC', 'CELIAC', 'CECA', 'CECAL', 'CETE', 'CECA', 'CECAL', 'CEIL', 'CEILED', 'CEILI', 'CHAO', 'CHAD', 'CHAY', 'CHAYOTE', 'CHALAH', 'CHALEH', 'CHALET', 'CHALOT', 'CHALOTH', 'CHALICE', 'CHALICED', 'CHAT', 'CHAI', 'CHELA', 'CHELATE', 'CHELATED', 'CHELOID', 'CHETAH', 'CHETH', 'CHYMIC', 'CHI', 'CHIMLA', 'CHIMLEY', 'CHIA', 'CHIAO', 'CHIEL', 'CHIELD', 'CHID', 'CHIDE', 'CHIDED', 'CHILE', 'CHILD', 'CHILDE', 'CHILI', 'CHILIAD', 'CHILIADAL', 'CHILIADIC', 'CHIC', 'CHICA', 'CHICALOTE', 'CHICHI', 'CHICO', 'COMTE', 'COMIC', 'COMICAL', 'COAL', 'COALA', 'COALED', 'COACH', 'COACHED', 'COACT', 'COACTED', 'COAT', 'COATED', 'COACH', 'COACHED', 'COED', 'COELOM', 'COELOMIC', 'COELIAC', 'COELIAC', 'COY', 'COYED', 'COYOTE', 'COL', 'COLA', 'COLE', 'COLED', 'COLECTOMY', 'COLOCATE', 'COLOCATED', 'COLOTOMY', 'COLOCATE', 'COLOCATED', 'COLD', 'COLT', 'COLIC', 'COCA', 'COCO', 'COCOA', 'COCCAL', 'COCCOID', 'COCCOIDAL', 'COT', 'COTE', 'COTED', 'COCA', 'COCO', 'COCOA', 'COCCAL', 'COCCOID', 'COCCOIDAL', 'COCCI', 'COCCID', 'COCCIDIA', 'COCCIC', 'COIL', 'COILED', 'CYMOL', 'CYMOID', 'CYCAD', 'CYCADEOID', 'CYCLE', 'CYCLED', 'CYCLO', 'CYCLOTHYMIA', 'CYCLOTHYMIC', 'CYCLOTOMIC', 'CYCLOID', 'CYCLOIDAL', 'CYCLIC', 'CYCLICAL', 'CLAD', 'CLADE', 'CLAY', 'CLAYED', 'CLAYEY', 'CLACH', 'CLACH', 'CLAIM', 'CLOACA', 'CLOACAL', 'CLOACA', 'CLOACAL', 'CLOY', 'CLOYED', 'CLOCHE', 'CLOT', 'CLOTH', 'CLOTHE', 'CLOTHED', 'CLOCHE', 'CLICHE', 'CLICHED', 'IMID', 'IMIDE', 'IMIDIC', 'IOTA', 'IDLE', 'IDLED', 'IDIOM', 'IDIOLECT', 'IDIOLECTAL', 'IDIOT', 'IDIOCY', 'ILIA', 'ILIAD', 'ILIAL', 'ILIAC', 'ILIAC', 'ICE', 'ICED', 'ICH', 'ICHTHYOID', 'ICHTHYIC']
-    print(possible_words)
     valid_combinations = find_valid_combinations_of_words_limited(possible_words, original_characters)
-    print(valid_combinations)
+    for combination in valid_combinations:
+        print(combination)
 
 
