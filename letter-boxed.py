@@ -39,8 +39,8 @@ def generate_combinations(sets, valid_words):
 	return results
 
 def find_valid_combinations_of_words_limited(returned_words, original_characters, max_words=3):
+	# Generate all subsets of words with a length of up to max_length
 	def all_combinations(words, max_length):
-		""" Generate all subsets of words with a length of up to max_length.  """
 		return chain.from_iterable(combinations(words, r) for r in range(1, max_length + 1))
 	def check_solution(solution_list):
 		l=len(solution_list)
@@ -53,7 +53,7 @@ def find_valid_combinations_of_words_limited(returned_words, original_characters
 	valid_combinations = []
 	for subset in all_combinations(returned_words, max_words):  # Limit combinations to max_words
 		for perm in permutations(subset):  # Check all permutations of the subset
-			combined = set(''.join(perm))
+			combined = set(''.join(perm))  # Create a set of ordered characters
 			if ''.join(sorted(combined)) == original_characters:  # Check character match
 				if check_solution(perm):
 					valid_combinations.append(perm)
@@ -65,12 +65,12 @@ if __name__ == "__main__":
 	# Read the words from the file
 	words_array = read_words_from_file(file_path)
 	input_characters = ''
-	if len(input_characters) != 12:
+	while len(input_characters) != 12:
 		input_characters = input("Enter exactly 12 characters: ").strip().upper()
 	sets = [set(input_characters[i:i+3]) for i in range(0, 12, 3)]
 	original_characters = set.union(*sets)
 	possible_words = generate_combinations(sets, words_array)
-	# Flatten original characters into a single string for comparison
+	# Flatten original characters into a single sorted string for comparison
 	flattened_characters = ''.join(sorted(original_characters))
 	valid_combinations = find_valid_combinations_of_words_limited(possible_words, flattened_characters)
 	for combination in valid_combinations:
